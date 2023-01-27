@@ -35,14 +35,15 @@
                         <td>{{ $order->invoice_number }}</td>
                         <td>{{ $order->user->username }}</td>
                         <td>{{ $order->user->referrer?->username . '--' . $order->user->referrer?->id }}</td>
-                        <td>{{ $order->user->referrals->count() ?? '0' }}</td>
+                        {{-- <td>{{ $order->user->referrals->count() ?? '0' }}</td> --}}
+                        <td>{{ $order->user->referredDistributorsCount }}</td>
                         {{-- <td>
                         @foreach ($order->user->groupby('referred_by') as $key => $value)
                             <td> {{ count($value) }}</td>
                         @endforeach
                         </td> --}}
 
-                        @if ($order->user->referrals->count() > 0 && $order->user->referrals->count() < 5)
+                        {{-- @if ($order->user->referrals->count() > 0 && $order->user->referrals->count() < 5)
                             <td>5%</td>
                         @elseif($order->user->referrals->count() > 5 && $order->user->referrals->count() < 10)
                             <td>10%</td>
@@ -54,20 +55,22 @@
                             <td>30%</td>
                         @else
                             <td>0</td>
-                        @endif
+                        @endif --}}
+
+                        <td>{{ $order->percentage }}%</td>
+
                         {{-- <td>{{ $order->user->referrals->count() ?? '0' }}</td> --}}
-                        <?php $total = 0; //$commission=0; ?>
+                        {{-- <?php// $total = 0; //$commission=0; ?> ?> ?> ?>
                         @foreach ($order->products as $product)
-                            <?php $total += $product->pivot->quantity * $product['price'];
-                                 //  $commission =floatval($total)*
-                            
+                            <?php //$total += $product->pivot->quantity * $product['price'];
+                            //  $commission =floatval($total)*
                             ?>
-                        @endforeach
-                        <td>{{ $total }}</td>
+                        @endforeach --}}
+                        <td>{{ $order->totalOrder }}</td>
                         {{-- <td>{{ $order->products }}</td> --}}
 
                         <td>{{ $order->order_date }}</td>
-                        <td></td>
+                        <td>{{$order->commission}}</td>
 
                         <td><a class="" href=" {{ route('view.details', ['id' => $order->id]) }}">View</a></td>
 

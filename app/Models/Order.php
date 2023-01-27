@@ -9,6 +9,12 @@ class Order extends Model
 {
     use HasFactory;
 
+    const PERCENTAGE_IF_ZERO_REFERRERS = 5;
+    const PERCENTAGE_IF_FROM_FIVE_TO_TEN_REFERRERS = 10;
+    const PERCENTAGE_IF_FROM_ELEVEN_TO_TWENTY_REFERRERS = 15;
+    const PERCENTAGE_IF_FROM_TWENTY_ONE_TO_THIRTY_REFERRERS = 20;
+    const PERCENTAGE_IF_FROM_THIRTY_ONE_AND_ABOVE_REFERRERS = 30;
+
     /**
      * The table associated with the model.
      *

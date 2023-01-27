@@ -26,7 +26,7 @@ class OrderController extends Controller
         $created_from = $request->input('from_date');
         $created_to = $request->input('to_date');
 
-        DB::enableQueryLog();
+        /// DB::enableQueryLog();
         $orders = Order::query()
             ->when(
                 $created_from,
@@ -43,10 +43,58 @@ class OrderController extends Controller
             )
             ->with('user', 'products')
 
-            // ->get()->count();
+            ->get()  //->count();
             // dd($orders, DB::getQueryLog());    //->toSql();
             ->paginate(10);
         // dd($orders);
+        $orders->transform(function ($item) {
+
+
+
+            //get totalOrder
+            if (isset($item->products) && count($item->products) > 0) {
+                $totalOrder = floatval(0);
+                foreach ($item->products as $product) {
+                    $totalOrder += floatval($product->price) * (int)$product->pivot->quantity;
+                }
+                $item->totalOrder = $totalOrder;
+            }
+
+
+            //get referredDistributors number
+            if (isset($item->user->referrals) && count($item->user->referrals) > 0) {
+                $item->user->referredDistributorsCount = count($item->user->referrals);
+            } else {
+                $item->user->referredDistributorsCount = 0;
+            }
+
+            //not utilized gul here
+            // if (is_null($item->user->referrer)) {
+            //     $item->user->referrerUser = "";
+            // } else {
+            //     $item->user->referrerUser = $item->user->referrer->username;
+            // }
+
+            //get percentage and commission
+            $referrerCount = $item->user->referredDistributorsCount;
+            if ($referrerCount > 0 && $referrerCount < 5) {
+                $item->percentage = Order::PERCENTAGE_IF_ZERO_REFERRERS;
+            } elseif ($referrerCount > 5 && $referrerCount < 11) {
+                $item->percentage = Order::PERCENTAGE_IF_FROM_FIVE_TO_TEN_REFERRERS;
+            } elseif ($referrerCount > 11 && $referrerCount < 21) {
+                $item->percentage = Order::PERCENTAGE_IF_FROM_ELEVEN_TO_TWENTY_REFERRERS;
+            } elseif ($referrerCount > 21 && $referrerCount < 31) {
+                $item->percentage = Order::PERCENTAGE_IF_FROM_TWENTY_ONE_TO_THIRTY_REFERRERS;
+            } elseif ($referrerCount > 31) {
+                $item->percentage = Order::PERCENTAGE_IF_FROM_THIRTY_ONE_AND_ABOVE_REFERRERS;
+            } else {
+                $item->percentage = 0;
+            }
+
+            $item->commission = floatval($item->totalOrder) * (int)$item->percentage / 100;
+
+            return $item;
+        });
         return view('creport', compact('orders'));
     }
     // public function calcSponserSales(User $user)

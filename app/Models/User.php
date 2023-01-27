@@ -64,10 +64,10 @@ class User extends Authenticatable
         return $this->hasMany(Order::class, 'purchaser_id');
     }
 
-    public function usercategory()
-    {
-        return $this->hasOne(UserCategory::class, 'user_id');
-    }
+    // public function usercategory()
+    // {
+    //     return $this->hasOne(UserCategory::class, 'user_id');
+    // }
 
     public function referrer()
     {
@@ -89,7 +89,7 @@ class User extends Authenticatable
     public function referredDistributors()
     {
         return $this->referrals()->whereHas('categories', function ($query) {
-            return  $query->where('name', 'Distributor');
+             $query->where('name', 'Distributor');
         });
     }
 }
