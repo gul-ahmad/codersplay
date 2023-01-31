@@ -162,13 +162,13 @@ class OrderController extends Controller
 
             //get percentage and commission
             $referrerCount = $item->user->referredDistributorsCount;
-            if ($referrerCount === 0 && $referrerCount < 5) {
+            if ($referrerCount >= 0 && $referrerCount < 5) {
                 $item->percentage = Order::PERCENTAGE_IF_ZERO_REFERRERS;
-            } elseif ($referrerCount == 5 && $referrerCount < 11) {
+            } elseif ($referrerCount >= 5 && $referrerCount < 11) {
                 $item->percentage = Order::PERCENTAGE_IF_FROM_FIVE_TO_TEN_REFERRERS;
-            } elseif ($referrerCount == 11 && $referrerCount < 21) {
+            } elseif ($referrerCount >= 11 && $referrerCount < 21) {
                 $item->percentage = Order::PERCENTAGE_IF_FROM_ELEVEN_TO_TWENTY_REFERRERS;
-            } elseif ($referrerCount == 21 && $referrerCount < 31) {
+            } elseif ($referrerCount >= 21 && $referrerCount < 31) {
                 $item->percentage = Order::PERCENTAGE_IF_FROM_TWENTY_ONE_TO_THIRTY_REFERRERS;
             } elseif ($referrerCount > 31) {
                 $item->percentage = Order::PERCENTAGE_IF_FROM_THIRTY_ONE_AND_ABOVE_REFERRERS;
