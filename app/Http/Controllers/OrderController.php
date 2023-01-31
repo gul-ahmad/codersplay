@@ -85,6 +85,11 @@ class OrderController extends Controller
         // return $OrderReferer;
 
 
+        //  $havingCategories = Order::whereHas('user.referrer.categories', function ($query) {
+        //         $query->where('id', 1);
+        //     })->get()->count();
+
+
 
         $orders = Order::query()
             ->when(
@@ -146,11 +151,26 @@ class OrderController extends Controller
 
 
             //get referredDistributors number
-            //  dd($item->user->referrer->referrals->whereHas('user.referrer.categories'), function ($query) {
+          
 
+            // $havingCategories = Order::whereHas('user.referrer.categories', function ($query) {
             //     $query->where('id', 1);
-            // });
+            // })->get()->count();
+
+
+                //dd($item->user->referrer->referrals->categories);
+
+
+                //In serch of distributors but time limit ended
+            //    $ffff= $item->whereHas('user.referrer.categories', function ($query) {
+
+            //         $query->where('id', 1);
+            //     });
+
+               // dd($ffff);
+
             if (isset($item->user->referrer->referrals) && count($item->user->referrer->referrals) > 0) {
+
 
 
                 $item->user->referredDistributorsCount = count($item->user->referrer->referrals);

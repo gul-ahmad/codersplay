@@ -93,4 +93,10 @@ class User extends Authenticatable
             return  $query->where('name', 'Distributor');
         });
     }
+    // public function isDistributors()
+    // {
+    //     return $this->whereHas('user.referrer.categories', function ($query) {
+    //         return  $query->where('id', 1);
+    //     });
+    // }
 }
