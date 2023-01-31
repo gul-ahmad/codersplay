@@ -83,13 +83,14 @@ class User extends Authenticatable
 
     public function categories()
     {
+
         return $this->belongsToMany(Category::class, 'user_category');
     }
 
     public function referredDistributors()
     {
         return $this->referrals()->whereHas('categories', function ($query) {
-             $query->where('name', 'Distributor');
+            return  $query->where('name', 'Distributor');
         });
     }
 }

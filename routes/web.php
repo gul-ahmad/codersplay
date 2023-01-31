@@ -19,7 +19,7 @@ Route::get('/', function () {
 });
 
 
-Route::get('/creport', [OrderController::class, 'index']);
+Route::get('/creport', [OrderController::class, 'index'])->name('c.report');
 Route::get('/details/{id}', [OrderController::class, 'show'])->name('view.details');
 
 

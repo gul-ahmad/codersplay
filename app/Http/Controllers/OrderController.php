@@ -22,28 +22,112 @@ class OrderController extends Controller
 
             'from_date' => ['date'],
             'to_date' => ['date'],
+            'distributor_id' => ['integer'],
+            'first_name' => ['string'],
+            'last_name' => ['string'],
         ])->validate();
+
+        //Validating From and To dates if both exist at the same time
+        if (($request->input('from_date')) && ($request->input('to_date'))) {
+
+            validator(request()->all(), [
+
+                'from_date' => ['date', 'required_with:to_date'],
+                'to_date' => ['date', 'required_with:from_date', 'after:from_date'],
+            ])->validate();
+        }
         $created_from = $request->input('from_date');
         $created_to = $request->input('to_date');
+        $first_name = $request->input('first_name');
+        $last_name = $request->input('last_name');
+        $distributor_id = $request->input('distributor_id');
 
-        /// DB::enableQueryLog();
+        DB::enableQueryLog();
+        // $orders = Order::whereHas(
+        //     'user.referredDistributors',
+        //     fn ($query) => $query
+        //         ->where('first_name', 'like', '%' . $first_name . '%')
+        // )->get()->count();
+        // dd($orders);
+
+        // $distributorByName = Order::with('user.referredDistributors')->get()->count();
+        // dd($distributorByName);
+
+
+        // $orderNew = User::with('referredDistributors')->where('id', 30451)->first();
+
+        // return $orderNew;
+
+
+        // $orderNewHere = Order::whereHas('user.referrer.categories', function ($query) {
+
+        //     $query->where('id', 1);
+        // })
+        //     ->whereHas('user.referrer', function ($query) use ($first_name) {
+        //         $query->where('first_name', 'like', '%' . $first_name . '%');
+        //     })
+        //     // ->where('id', 224613)
+        //     ->get();
+
+        // return $orderNewHere;
+
+
+        // $userReferer =User::with('referrer')
+        //         ->where('id',10082)
+        //         ->get();
+
+
+        // $OrderReferer = Order::with('user.referrer.referrals')
+        //     ->where('id', 217511)
+        //     ->get();
+
+
+        // return $OrderReferer;
+
+
+
         $orders = Order::query()
             ->when(
                 $created_from,
                 fn ($query) => $query->whereDate('order_date', '>=', $created_from)
+                //Mysql Query
+                //SELECT * FROM orders
+                //WHERE DATE(order_date) >= '2020-05-19'
             )
             ->when(
                 $created_to,
                 fn ($query) => $query->whereDate('order_date', '<=', $created_to)
+
+                //Mysql Query
+                //SELECT * FROM orders
+                //WHERE DATE(order_date) <= '2020-05-19'
             )
 
             ->when(
                 $created_from && $created_to,
                 fn ($query) => $query->whereBetween('order_date', [$created_from, $created_to])
+                //SELECT * FROM `orders` 
+                //WHERE  (order_date BETWEEN '2020-02-22' AND '2020-02-23')
+            )
+            ->when(
+                $first_name || $last_name || $distributor_id,
+                function ($query) use ($first_name, $last_name, $distributor_id) {
+                    $query->whereHas('user.referrer.categories', function ($query) {
+
+                        $query->where('id', 1);
+                    })
+                        ->whereHas('user.referrer', function ($query) use ($first_name, $last_name, $distributor_id) {
+                            $query->where('first_name', 'like', '%' . $first_name . '%')
+                                ->orWhere('last_name', 'like', '%' . $last_name . '%')
+                                ->orWhere('id', $distributor_id);
+                        });
+                }
+
             )
             ->with('user', 'products')
 
-            ->get()  //->count();
+
+            ->get() //->count();
             // dd($orders, DB::getQueryLog());    //->toSql();
             ->paginate(10);
         // dd($orders);
@@ -62,18 +146,19 @@ class OrderController extends Controller
 
 
             //get referredDistributors number
-            if (isset($item->user->referrals) && count($item->user->referrals) > 0) {
-                $item->user->referredDistributorsCount = count($item->user->referrals);
+            //  dd($item->user->referrer->referrals->whereHas('user.referrer.categories'), function ($query) {
+
+            //     $query->where('id', 1);
+            // });
+            if (isset($item->user->referrer->referrals) && count($item->user->referrer->referrals) > 0) {
+
+
+                $item->user->referredDistributorsCount = count($item->user->referrer->referrals);
             } else {
                 $item->user->referredDistributorsCount = 0;
             }
 
-            //not utilized gul here
-            // if (is_null($item->user->referrer)) {
-            //     $item->user->referrerUser = "";
-            // } else {
-            //     $item->user->referrerUser = $item->user->referrer->username;
-            // }
+
 
             //get percentage and commission
             $referrerCount = $item->user->referredDistributorsCount;
